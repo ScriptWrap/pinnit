@@ -149,7 +149,7 @@ class NotificationUtil @Inject constructor(
     // the NotificationChannel class is new and not in the support library
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       val name = context.getString(R.string.channel_name)
-      val importance = NotificationManager.IMPORTANCE_LOW
+      val importance = NotificationManager.IMPORTANCE_HIGH
       val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
         setShowBadge(false)
         enableLights(false)
