@@ -131,7 +131,7 @@ class NotificationUtil @Inject constructor(
       .setContentTitle(notification.title)
       .setContentText(content)
       .setContentIntent(editorPendingIntent)
-      .setPriority(NotificationCompat.PRIORITY_HIGH)
+      .setPriority(NotificationCompat.PRIORITY_DEFAULT)
       .setStyle(
         NotificationCompat.BigTextStyle().bigText(
           notification.content
