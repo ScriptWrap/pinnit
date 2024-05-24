@@ -16,8 +16,8 @@ import dev.sasikanth.pinnit.notifications.NotificationRepository
 import dev.sasikanth.pinnit.scheduler.PinnitNotificationScheduler
 import dev.sasikanth.pinnit.utils.TestDispatcherProvider
 import dev.sasikanth.pinnit.utils.notification.NotificationUtil
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -27,7 +27,7 @@ import java.util.UUID
 
 class EditorScreenEffectHandlerTest {
 
-  private val testScope = TestCoroutineScope()
+  private val testScope = TestScope()
 
   private val viewEffectConsumer = RecordingConsumer<EditorScreenViewEffect>()
   private val repository = mock<NotificationRepository>()
@@ -58,7 +58,7 @@ class EditorScreenEffectHandlerTest {
   }
 
   @Test
-  fun `when load notification effect is received, then load the notification`() = testScope.runBlockingTest {
+  fun `when load notification effect is received, then load the notification`() = testScope.runTest {
     // given
     val notificationUuid = UUID.fromString("b44624c8-0535-4743-a97b-d0350fd446c2")
     val notification = dev.sasikanth.sharedtestcode.TestData.notification(
@@ -78,7 +78,7 @@ class EditorScreenEffectHandlerTest {
   }
 
   @Test
-  fun `when save notification effect is received, then save the notification`() = testScope.runBlockingTest {
+  fun `when save notification effect is received, then save the notification`() = testScope.runTest {
     // given
     val notificationUuid = UUID.fromString("9610e5b7-6894-4da9-965a-048abf568247")
     val title = "Notification Title"
@@ -124,7 +124,7 @@ class EditorScreenEffectHandlerTest {
   }
 
   @Test
-  fun `when update notification effect is received, then update the notification`() = testScope.runBlockingTest {
+  fun `when update notification effect is received, then update the notification`() = testScope.runTest {
     // given
     val notificationUuid = UUID.fromString("4e91382a-d5c3-44a7-8ee3-fa15a4ec69b4")
     val notification = dev.sasikanth.sharedtestcode.TestData.notification(
@@ -191,7 +191,7 @@ class EditorScreenEffectHandlerTest {
   }
 
   @Test
-  fun `when delete notification effect is received, then delete the notification`() = testScope.runBlockingTest {
+  fun `when delete notification effect is received, then delete the notification`() = testScope.runTest {
     // give
     val notification = dev.sasikanth.sharedtestcode.TestData.notification(
       uuid = UUID.fromString("0e51b71a-2bec-49eb-bbec-1e5d1b74e643")

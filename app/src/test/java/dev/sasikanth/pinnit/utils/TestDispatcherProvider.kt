@@ -1,11 +1,11 @@
 package dev.sasikanth.pinnit.utils
 
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
 class TestDispatcherProvider : DispatcherProvider {
 
-  private val testCoroutineDispatcher = TestCoroutineDispatcher()
+  private val testCoroutineDispatcher = UnconfinedTestDispatcher()
 
   override val main: CoroutineDispatcher
     get() = testCoroutineDispatcher
