@@ -104,7 +104,7 @@
     </receiver>
 
     <meta-data
-      android:name="com.google.android.actions"
+      android:name="android.app.shortcuts"
       android:resource="@xml/actions" />
 
     <provider
