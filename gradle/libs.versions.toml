@@ -71,13 +71,14 @@ hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hilt-co
 hilt-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hilt" }
 mobius = { module = "com.spotify.mobius:mobius-core", version.ref = "mobius" }
 mobius-android = { module = "com.spotify.mobius:mobius-android", version.ref = "mobius" }
+mobius-coroutines = { module = "com.spotify.mobius:mobius-coroutines", version.ref = "mobius" }
 mobius-test = { module = "com.spotify.mobius:mobius-test", version.ref = "mobius" }
 circleImageView = { module = "de.hdodenhof:circleimageview", version.ref = "circleImageView" }
 insetterktx = { module = "dev.chrisbanes:insetter-ktx", version.ref = "insetter" }
 betterLinkMovement = { module = "me.saket:better-link-movement-method", version.ref = "betterLinkMovement" }
 javalite = { module = "com.google.protobuf:protobuf-javalite", version.ref = "javalite" }
 flowBinding = { module = "io.github.reactivecircus.flowbinding:flowbinding-material", version.ref = "flowBinding" }
-desugar-JDK = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugarJDK" }
+desugar-jdk = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugarJDK" }
 junit = { module = "junit:junit", version.ref = "junit" }
 androidx-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-junit" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
@@ -99,4 +100,4 @@ androidx-room = [ "androidx-room-runtime", "androidx-room" ]
 androidx-navigation = [ "androidx-navigation", "androidx-navigation-ui" ]
 androidx-lifecycle = [ "androidx-lifecycle-viewmodel", "androidx-lifecycle-viewmodel-savedstate", "androidx-lifecycle-livedata", "androidx-lifecycle-common" ]
 coroutines = [ "kotlin-coroutines-core", "kotlin-coroutines-android" ]
-mobius = [ "mobius", "mobius-android" ]
+mobius = [ "mobius", "mobius-android", "mobius-coroutines" ]
