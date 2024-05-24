@@ -1,6 +1,9 @@
 package dev.sasikanth.pinnit
 
 import android.app.Application
+import android.os.StrictMode
+import android.os.StrictMode.ThreadPolicy
+import android.os.StrictMode.VmPolicy
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.datastore.core.DataStore
 import androidx.work.Configuration
@@ -12,6 +15,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
+
 
 @HiltAndroidApp
 class PinnitApp : Application(), Configuration.Provider {
@@ -33,6 +37,24 @@ class PinnitApp : Application(), Configuration.Provider {
     get() = configuration
 
   override fun onCreate() {
+    if (BuildConfig.DEBUG) {
+      StrictMode.setThreadPolicy(
+        ThreadPolicy.Builder()
+          .detectDiskReads()
+          .detectDiskWrites()
+          .penaltyLog()
+          .build()
+      )
+      StrictMode.setVmPolicy(
+        VmPolicy.Builder()
+          .detectLeakedSqlLiteObjects()
+          .detectLeakedClosableObjects()
+          .penaltyLog()
+          .penaltyDeath()
+          .build()
+      )
+    }
+
     super.onCreate()
 
     appPreferencesStore
