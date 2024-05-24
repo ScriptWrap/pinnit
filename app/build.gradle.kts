@@ -5,6 +5,7 @@ plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.kotlin.android)
   alias(libs.plugins.kotlin.parcelize)
+  alias(libs.plugins.compose.compiler)
   alias(libs.plugins.androidx.navigation)
   alias(libs.plugins.hilt)
   alias(libs.plugins.protobuf)
@@ -79,6 +80,7 @@ android {
   buildFeatures {
     viewBinding = true
     buildConfig = true
+    compose = true
   }
   compileOptions {
     isCoreLibraryDesugaringEnabled = true
@@ -160,6 +162,12 @@ dependencies {
   implementation(libs.androidx.datastore)
   implementation(libs.javalite)
   implementation(libs.flowBinding)
+
+  val composeBOM = platform(libs.androidx.compose.bom)
+  implementation(composeBOM)
+  implementation(libs.androidx.compose.material3)
+  implementation(libs.androidx.compose.ui.tooling.preview)
+  debugImplementation(libs.androidx.compose.ui.tooling)
 
   testImplementation(libs.junit)
   testImplementation(libs.truth)
