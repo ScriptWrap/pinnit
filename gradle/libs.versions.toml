@@ -5,7 +5,7 @@ sdk-target = "34"
 
 agp = "8.4.1"
 kotlin = "2.0.0"
-hilt = "2.50"
+hilt = "2.51.1"
 protobuf = "0.9.4"
 protoc = "3.25.2"
 ksp = "2.0.0-1.0.21"
