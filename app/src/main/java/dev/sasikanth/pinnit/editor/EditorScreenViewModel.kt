@@ -17,7 +17,7 @@ class EditorScreenViewModel @Inject constructor(
   workRunner: WorkRunner
 ) : MobiusLoopViewModel<EditorScreenModel, EditorScreenEvent, EditorScreenEffect, EditorScreenViewEffect>(
   { viewEffectsConsumer ->
-    Mobius.loop(update, effectHandlerFactory.create(viewEffectsConsumer))
+    Mobius.loop(update, effectHandlerFactory.create(viewEffectsConsumer).build())
   },
   editorScreenModel(savedStateHandle),
   init,

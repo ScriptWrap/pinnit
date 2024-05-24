@@ -1,13 +1,5 @@
 package dev.sasikanth.pinnit.editor
 
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoMoreInteractions
-import org.mockito.kotlin.verifyNoInteractions
-import org.mockito.kotlin.whenever
 import com.spotify.mobius.Connection
 import com.spotify.mobius.test.RecordingConsumer
 import dev.sasikanth.pinnit.data.ScheduleType
@@ -21,6 +13,14 @@ import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.verifyNoMoreInteractions
+import org.mockito.kotlin.whenever
 import java.time.LocalDate
 import java.time.LocalTime
 import java.util.UUID
@@ -49,7 +49,7 @@ class EditorScreenEffectHandlerTest {
 
   @Before
   fun setup() {
-    connection = effectHandler.connect(consumer)
+    connection = effectHandler.build().connect(consumer)
   }
 
   @After
@@ -165,7 +165,7 @@ class EditorScreenEffectHandlerTest {
   }
 
   @Test
-  fun `when close editor effect is received, then close the editor view`() {
+  fun `when close editor effect is received, then close the editor view`() = testScope.runTest {
     // when
     connection.accept(CloseEditor)
 
@@ -178,7 +178,7 @@ class EditorScreenEffectHandlerTest {
   }
 
   @Test
-  fun `when show confirm exit effect is received, then show confirm exit dialog`() {
+  fun `when show confirm exit effect is received, then show confirm exit dialog`() = testScope.runTest {
     // when
     connection.accept(ShowConfirmExitEditor)
 
@@ -214,7 +214,7 @@ class EditorScreenEffectHandlerTest {
   }
 
   @Test
-  fun `when show confirm delete effect is received, then display the confirm delete dialog`() {
+  fun `when show confirm delete effect is received, then display the confirm delete dialog`() = testScope.runTest {
     // when
     connection.accept(ShowConfirmDelete)
 
@@ -227,7 +227,7 @@ class EditorScreenEffectHandlerTest {
   }
 
   @Test
-  fun `when set title and content effect is received, then set title and content`() {
+  fun `when set title and content effect is received, then set title and content`() = testScope.runTest {
     // given
     val notificationContent = "Notification Content"
 
@@ -243,7 +243,7 @@ class EditorScreenEffectHandlerTest {
   }
 
   @Test
-  fun `when show date picker effect is received, then show date picker dialog`() {
+  fun `when show date picker effect is received, then show date picker dialog`() = testScope.runTest {
     // given
     val date = LocalDate.parse("2020-01-01")
 
@@ -259,7 +259,7 @@ class EditorScreenEffectHandlerTest {
   }
 
   @Test
-  fun `when show time picker effect is received, then show time picker dialog`() {
+  fun `when show time picker effect is received, then show time picker dialog`() = testScope.runTest {
     // given
     val time = LocalTime.parse("09:00:00")
 
@@ -275,7 +275,7 @@ class EditorScreenEffectHandlerTest {
   }
 
   @Test
-  fun `when show notification effect is received, then show android notification`() {
+  fun `when show notification effect is received, then show android notification`() = testScope.runTest {
     // given
     val notification = dev.sasikanth.sharedtestcode.TestData.notification(
       uuid = UUID.fromString("e3848c84-afe9-45a6-ba90-d7f0ad3de193")
@@ -293,7 +293,7 @@ class EditorScreenEffectHandlerTest {
   }
 
   @Test
-  fun `when schedule notification effect is received, then schedule a notification`() {
+  fun `when schedule notification effect is received, then schedule a notification`() = testScope.runTest {
     // given
     val notification = dev.sasikanth.sharedtestcode.TestData.notification()
 
@@ -309,7 +309,7 @@ class EditorScreenEffectHandlerTest {
   }
 
   @Test
-  fun `when cancel notification schedule effect is received, then cancel notification schedule`() {
+  fun `when cancel notification schedule effect is received, then cancel notification schedule`() = testScope.runTest {
     // given
     val notificationId = UUID.fromString("43c61479-2529-424a-a0fa-12b4bd90f591")
 
@@ -325,7 +325,7 @@ class EditorScreenEffectHandlerTest {
   }
 
   @Test
-  fun `when validate schedule effect is received, then validate schedule`() {
+  fun `when validate schedule effect is received, then validate schedule`() = testScope.runTest {
     // given
     val scheduleDate = LocalDate.parse("2020-01-01")
     val scheduleTime = LocalTime.parse("09:00:00")

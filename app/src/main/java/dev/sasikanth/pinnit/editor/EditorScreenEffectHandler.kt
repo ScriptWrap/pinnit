@@ -1,58 +1,86 @@
 package dev.sasikanth.pinnit.editor
 
+import com.spotify.mobius.Connectable
+import com.spotify.mobius.coroutines.MobiusCoroutines
 import com.spotify.mobius.functions.Consumer
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import dev.sasikanth.pinnit.mobius.CoroutineConnectable
 import dev.sasikanth.pinnit.notifications.NotificationRepository
 import dev.sasikanth.pinnit.scheduler.PinnitNotificationScheduler
 import dev.sasikanth.pinnit.utils.DispatcherProvider
 import dev.sasikanth.pinnit.utils.notification.NotificationUtil
+import kotlinx.coroutines.withContext
 
 class EditorScreenEffectHandler @AssistedInject constructor(
   private val notificationRepository: NotificationRepository,
-  dispatcherProvider: DispatcherProvider,
+  private val dispatcherProvider: DispatcherProvider,
   private val notificationUtil: NotificationUtil,
   private val pinnitNotificationScheduler: PinnitNotificationScheduler,
   private val scheduleValidator: ScheduleValidator,
   @Assisted private val viewEffectConsumer: Consumer<EditorScreenViewEffect>
-) : CoroutineConnectable<EditorScreenEffect, EditorScreenEvent>(dispatcherProvider.main) {
+) {
 
   @AssistedFactory
   interface Factory {
     fun create(viewEffectConsumer: Consumer<EditorScreenViewEffect>): EditorScreenEffectHandler
   }
 
-  override suspend fun handler(effect: EditorScreenEffect, dispatchEvent: (EditorScreenEvent) -> Unit) {
-    when (effect) {
-      is LoadNotification -> loadNotification(effect, dispatchEvent)
+  fun build(): Connectable<EditorScreenEffect, EditorScreenEvent> {
+    return MobiusCoroutines.effectHandler(dispatcherProvider.main) { effect, eventConsumer ->
+      when (effect) {
+        is LoadNotification -> loadNotification(effect, eventConsumer::accept)
 
-      is SetTitleAndContent -> setTitleAndContent(effect)
+        is SetTitleAndContent -> setTitleAndContent(effect)
 
-      is SaveNotification -> saveNotification(effect, dispatchEvent)
+        is SaveNotification -> saveNotification(effect, eventConsumer::accept)
 
-      is UpdateNotification -> updateNotification(effect, dispatchEvent)
+        is UpdateNotification -> updateNotification(effect, eventConsumer::accept)
 
-      ShowConfirmExitEditor -> viewEffectConsumer.accept(ShowConfirmExitEditorDialog)
+        ShowConfirmExitEditor -> showConfirmExitDialog()
 
-      CloseEditor -> viewEffectConsumer.accept(CloseEditorView)
+        CloseEditor -> closeEditorView()
 
-      ShowConfirmDelete -> viewEffectConsumer.accept(ShowConfirmDeleteDialog)
+        ShowConfirmDelete -> showConfirmDeleteDialog()
 
-      is DeleteNotification -> deleteNotification(effect)
+        is DeleteNotification -> deleteNotification(effect)
 
-      is ShowDatePicker -> viewEffectConsumer.accept(ShowDatePickerDialog(effect.date))
+        is ShowDatePicker -> showDatePicker(effect)
 
-      is ShowTimePicker -> viewEffectConsumer.accept(ShowTimePickerDialog(effect.time))
+        is ShowTimePicker -> showTimePicker(effect)
 
-      is ShowNotification -> showNotification(effect)
+        is ShowNotification -> showNotification(effect)
 
-      is ScheduleNotification -> scheduleNotification(effect)
+        is ScheduleNotification -> scheduleNotification(effect)
 
-      is CancelNotificationSchedule -> cancelNotificationSchedule(effect)
+        is CancelNotificationSchedule -> cancelNotificationSchedule(effect)
 
-      is ValidateSchedule -> validateSchedule(effect, dispatchEvent)
+        is ValidateSchedule -> validateSchedule(effect, eventConsumer::accept)
+      }
+    }
+  }
+
+  private suspend fun showTimePicker(effect: ShowTimePicker) {
+    withContext(dispatcherProvider.main) {
+      viewEffectConsumer.accept(ShowTimePickerDialog(effect.time))
+    }
+  }
+
+  private suspend fun showDatePicker(effect: ShowDatePicker) {
+    withContext(dispatcherProvider.main) {
+      viewEffectConsumer.accept(ShowDatePickerDialog(effect.date))
+    }
+  }
+
+  private suspend fun showConfirmDeleteDialog() {
+    withContext(dispatcherProvider.main) {
+      viewEffectConsumer.accept(ShowConfirmDeleteDialog)
+    }
+  }
+
+  private suspend fun showConfirmExitDialog() {
+    withContext(dispatcherProvider.main) {
+      viewEffectConsumer.accept(ShowConfirmExitEditorDialog)
     }
   }
 
@@ -60,63 +88,87 @@ class EditorScreenEffectHandler @AssistedInject constructor(
     effect: LoadNotification,
     dispatchEvent: (EditorScreenEvent) -> Unit
   ) {
-    val notification = notificationRepository.notification(effect.uuid)
-    dispatchEvent(NotificationLoaded(notification))
+    withContext(dispatcherProvider.io) {
+      val notification = notificationRepository.notification(effect.uuid)
+      dispatchEvent(NotificationLoaded(notification))
+    }
   }
 
-  private fun setTitleAndContent(effect: SetTitleAndContent) {
-    viewEffectConsumer.accept(SetTitle(effect.title))
-    viewEffectConsumer.accept(SetContent(effect.content))
+  private suspend fun setTitleAndContent(effect: SetTitleAndContent) {
+    withContext(dispatcherProvider.main) {
+      viewEffectConsumer.accept(SetTitle(effect.title))
+      viewEffectConsumer.accept(SetContent(effect.content))
+    }
   }
 
   private suspend fun saveNotification(effect: SaveNotification, dispatchEvent: (EditorScreenEvent) -> Unit) {
-    val notification = notificationRepository.save(
-      title = effect.title,
-      content = effect.content,
-      isPinned = effect.canPinNotification,
-      schedule = effect.schedule
-    )
-    dispatchEvent(NotificationSaved(notification))
+    withContext(dispatcherProvider.io) {
+      val notification = notificationRepository.save(
+        title = effect.title,
+        content = effect.content,
+        isPinned = effect.canPinNotification,
+        schedule = effect.schedule
+      )
+      dispatchEvent(NotificationSaved(notification))
+    }
   }
 
   private suspend fun updateNotification(effect: UpdateNotification, dispatchEvent: (EditorScreenEvent) -> Unit) {
-    val notification = notificationRepository.notification(effect.notificationUuid)
-    val updatedNotification = notificationRepository.updateNotification(
-      notification.copy(
-        title = effect.title,
-        content = effect.content,
-        schedule = effect.schedule
+    withContext(dispatcherProvider.io) {
+      val notification = notificationRepository.notification(effect.notificationUuid)
+      val updatedNotification = notificationRepository.updateNotification(
+        notification.copy(
+          title = effect.title,
+          content = effect.content,
+          schedule = effect.schedule
+        )
       )
-    )
 
-    dispatchEvent(NotificationUpdated(updatedNotification))
+      dispatchEvent(NotificationUpdated(updatedNotification))
+    }
   }
 
   private suspend fun deleteNotification(
     effect: DeleteNotification
   ) {
-    val notification = effect.notification
-    notificationRepository.updatePinStatus(notification.uuid, false)
-    notificationRepository.deleteNotification(notification)
-    notificationUtil.dismissNotification(notification)
-    viewEffectConsumer.accept(CloseEditorView)
-    pinnitNotificationScheduler.cancel(notification.uuid)
+    withContext(dispatcherProvider.io) {
+      val notification = effect.notification
+      notificationRepository.updatePinStatus(notification.uuid, false)
+      notificationRepository.deleteNotification(notification)
+      notificationUtil.dismissNotification(notification)
+      pinnitNotificationScheduler.cancel(notification.uuid)
+      closeEditorView()
+    }
   }
 
-  private fun showNotification(effect: ShowNotification) {
-    notificationUtil.showNotification(effect.notification)
+  private suspend fun closeEditorView() {
+    withContext(dispatcherProvider.main) {
+      viewEffectConsumer.accept(CloseEditorView)
+    }
   }
 
-  private fun scheduleNotification(effect: ScheduleNotification) {
-    pinnitNotificationScheduler.scheduleNotification(effect.notification)
+  private suspend fun showNotification(effect: ShowNotification) {
+    withContext(dispatcherProvider.default) {
+      notificationUtil.showNotification(effect.notification)
+    }
   }
 
-  private fun cancelNotificationSchedule(effect: CancelNotificationSchedule) {
-    pinnitNotificationScheduler.cancel(effect.notificationId)
+  private suspend fun scheduleNotification(effect: ScheduleNotification) {
+    withContext(dispatcherProvider.default) {
+      pinnitNotificationScheduler.scheduleNotification(effect.notification)
+    }
   }
 
-  private fun validateSchedule(effect: ValidateSchedule, dispatchEvent: (EditorScreenEvent) -> Unit) {
-    val result = scheduleValidator.validate(effect.scheduleDate, effect.scheduleTime)
-    dispatchEvent(ScheduleValidated(result))
+  private suspend fun cancelNotificationSchedule(effect: CancelNotificationSchedule) {
+    withContext(dispatcherProvider.default) {
+      pinnitNotificationScheduler.cancel(effect.notificationId)
+    }
+  }
+
+  private suspend fun validateSchedule(effect: ValidateSchedule, dispatchEvent: (EditorScreenEvent) -> Unit) {
+    withContext(dispatcherProvider.default) {
+      val result = scheduleValidator.validate(effect.scheduleDate, effect.scheduleTime)
+      dispatchEvent(ScheduleValidated(result))
+    }
   }
 }
