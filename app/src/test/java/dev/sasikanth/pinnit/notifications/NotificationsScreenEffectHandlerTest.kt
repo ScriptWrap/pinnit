@@ -11,6 +11,8 @@ import com.spotify.mobius.test.RecordingConsumer
 import dev.sasikanth.pinnit.scheduler.PinnitNotificationScheduler
 import dev.sasikanth.pinnit.utils.TestDispatcherProvider
 import dev.sasikanth.pinnit.utils.notification.NotificationUtil
+import dev.sasikanth.sharedtestcode.TestData
+import dev.sasikanth.sharedtestcode.utils.TestUtcClock
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
@@ -24,7 +26,7 @@ import java.util.UUID
 
 class NotificationsScreenEffectHandlerTest {
 
-  private val utcClock = dev.sasikanth.sharedtestcode.utils.TestUtcClock().apply {
+  private val utcClock = TestUtcClock().apply {
     setDate(LocalDate.parse("2020-02-14"))
   }
 
@@ -48,7 +50,7 @@ class NotificationsScreenEffectHandlerTest {
 
   @Before
   fun setup() {
-    connection = effectHandler.connect(consumer)
+    connection = effectHandler.build().connect(consumer)
   }
 
   @After
@@ -57,14 +59,14 @@ class NotificationsScreenEffectHandlerTest {
   }
 
   @Test
-  fun `when load notifications effect is received, then fetch notifications`() {
+  fun `when load notifications effect is received, then fetch notifications`() = testScope.runTest {
     // given
-    val notification1 = dev.sasikanth.sharedtestcode.TestData.notification(
+    val notification1 = TestData.notification(
       uuid = UUID.fromString("5d9e67ff-44ad-48c7-9ff8-69d7b927c175"),
       createdAt = Instant.now(utcClock),
       updatedAt = Instant.now(utcClock)
     )
-    val notification2 = dev.sasikanth.sharedtestcode.TestData.notification(
+    val notification2 = TestData.notification(
       uuid = UUID.fromString("f5570d1f-9054-4770-ae0a-6aacdb4c95b0"),
       createdAt = Instant.now(utcClock).minus(1, ChronoUnit.DAYS),
       updatedAt = Instant.now(utcClock)
@@ -89,7 +91,7 @@ class NotificationsScreenEffectHandlerTest {
   @Test
   fun `when toggle pin status effect is received, then update the notification pin status`() = testScope.runTest {
     // given
-    val notification = dev.sasikanth.sharedtestcode.TestData.notification(
+    val notification = TestData.notification(
       uuid = UUID.fromString("ff73fd70-852f-4833-bc9c-a6f67b2e66f0"),
       isPinned = false,
       createdAt = Instant.now(utcClock),
@@ -113,7 +115,7 @@ class NotificationsScreenEffectHandlerTest {
   @Test
   fun `when toggle pin status effect is received and notification is pinned, then update the notification pin status`() = testScope.runTest {
     // given
-    val notification = dev.sasikanth.sharedtestcode.TestData.notification(
+    val notification = TestData.notification(
       uuid = UUID.fromString("ff73fd70-852f-4833-bc9c-a6f67b2e66f0"),
       createdAt = Instant.now(utcClock),
       updatedAt = Instant.now(utcClock),
@@ -137,7 +139,7 @@ class NotificationsScreenEffectHandlerTest {
   @Test
   fun `when delete notification effect is received, then delete notification and show undo option`() = testScope.runTest {
     // given
-    val notification = dev.sasikanth.sharedtestcode.TestData.notification(
+    val notification = TestData.notification(
       uuid = UUID.fromString("34727623-c572-455f-8e37-b1df3baca79e"),
       createdAt = Instant.now(utcClock).minus(1, ChronoUnit.DAYS),
       updatedAt = Instant.now(utcClock)
@@ -164,7 +166,7 @@ class NotificationsScreenEffectHandlerTest {
   fun `when undo deleted notification effect is received, then undo the delete`() = testScope.runTest {
     // given
     val notificationUuid = UUID.fromString("f3d50ff2-5e92-4d46-b5b9-53bbe770ef9c")
-    val notification = dev.sasikanth.sharedtestcode.TestData.notification(
+    val notification = TestData.notification(
       uuid = UUID.fromString("34727623-c572-455f-8e37-b1df3baca79e"),
       schedule = null,
       createdAt = Instant.now(utcClock).minus(1, ChronoUnit.DAYS),
@@ -189,7 +191,7 @@ class NotificationsScreenEffectHandlerTest {
   @Test
   fun `when check notifications visibility effect is received, then check notifications visibility`() = testScope.runTest {
     // given
-    val notification1 = dev.sasikanth.sharedtestcode.TestData.notification(
+    val notification1 = TestData.notification(
       uuid = UUID.fromString("199ec75d-938d-4481-97db-ba9124cb7d75"),
       title = "Notification 1",
       isPinned = true
@@ -213,9 +215,9 @@ class NotificationsScreenEffectHandlerTest {
   }
 
   @Test
-  fun `when show undo delete notification effect is received, then show the undo delete notification`() {
+  fun `when show undo delete notification effect is received, then show the undo delete notification`() = testScope.runTest {
     // given
-    val notification = dev.sasikanth.sharedtestcode.TestData.notification()
+    val notification = TestData.notification()
 
     // when
     connection.accept(ShowUndoDeleteNotification(notification))
@@ -226,7 +228,7 @@ class NotificationsScreenEffectHandlerTest {
   }
 
   @Test
-  fun `when cancel schedule notification effect is received, then cancel the schedule`() {
+  fun `when cancel schedule notification effect is received, then cancel the schedule`() = testScope.runTest {
     // give
     val notificationId = UUID.fromString("f249493f-7807-4e05-a3f8-dfdb049ad99f")
 
@@ -257,10 +259,10 @@ class NotificationsScreenEffectHandlerTest {
   }
 
   @Test
-  fun `when schedule notification effect is received, then schedule the notification`() {
+  fun `when schedule notification effect is received, then schedule the notification`() = testScope.runTest {
     // given
     val notificationId = UUID.fromString("813b97a8-b323-4fcf-ac44-f8a543ae3c52")
-    val notification = dev.sasikanth.sharedtestcode.TestData.notification(notificationId)
+    val notification = TestData.notification(notificationId)
 
     // when
     connection.accept(ScheduleNotification(notification))
@@ -273,7 +275,7 @@ class NotificationsScreenEffectHandlerTest {
   }
 
   @Test
-  fun `when check notifications permission effect is received, then check the permission`() {
+  fun `when check notifications permission effect is received, then check the permission`() = testScope.runTest {
     // given
     whenever(notificationUtil.hasPermissionToPostNotifications()) doReturn true
 
@@ -288,7 +290,7 @@ class NotificationsScreenEffectHandlerTest {
   }
 
   @Test
-  fun `when request notification permission effect is received, then request permission to post notifications`() {
+  fun `when request notification permission effect is received, then request permission to post notifications`() = testScope.runTest {
     // when
     connection.accept(RequestNotificationPermission)
 

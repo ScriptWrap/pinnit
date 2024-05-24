@@ -17,7 +17,7 @@ class NotificationsScreenViewModel @Inject constructor(
   workRunner: WorkRunner
 ) : MobiusLoopViewModel<NotificationsScreenModel, NotificationsScreenEvent, NotificationsScreenEffect, NotificationScreenViewEffect>(
   { viewEffectsConsumer ->
-    Mobius.loop(update, effectHandlerFactory.create(viewEffectsConsumer))
+    Mobius.loop(update, effectHandlerFactory.create(viewEffectsConsumer).build())
   },
   savedStateHandle.get<NotificationsScreenModel>(MODEL_KEY) ?: NotificationsScreenModel.default(),
   init,
