@@ -9,6 +9,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.PrimaryKey
 import androidx.room.Query
+import dev.zacsweers.redacted.annotations.Redacted
 import kotlinx.coroutines.flow.Flow
 import kotlinx.parcelize.Parcelize
 import java.time.Instant
@@ -19,8 +20,8 @@ import java.util.UUID
 @Parcelize
 data class PinnitNotification(
   @PrimaryKey val uuid: UUID,
-  val title: String,
-  val content: String? = null,
+  @Redacted val title: String,
+  @Redacted val content: String? = null,
   val isPinned: Boolean = true,
   val createdAt: Instant,
   val updatedAt: Instant,
