@@ -38,6 +38,7 @@ mockito = "5.3.1"
 espresso = "3.5.1"
 desugarJDK = "2.0.4"
 compose = "2024.05.00"
+redacted = "1.9.0"
 
 [libraries]
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
@@ -100,6 +101,7 @@ androidx-navigation = { id = "androidx.navigation.safeargs.kotlin",version.ref =
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 protobuf = { id = "com.google.protobuf", version.ref = "protobuf" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+redacted = { id = "dev.zacsweers.redacted", version.ref = "redacted" }
 
 [bundles]
 androidx-room = [ "androidx-room-runtime", "androidx-room" ]
