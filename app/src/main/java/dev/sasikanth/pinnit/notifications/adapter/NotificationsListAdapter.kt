@@ -28,7 +28,7 @@ import java.time.format.DateTimeFormatter
 import kotlin.math.hypot
 
 class NotificationsListAdapter(
-  utcClock: UtcClock,
+  private val utcClock: UtcClock,
   private val userClock: UserClock,
   private val scheduleDateFormatter: DateTimeFormatter,
   private val scheduleTimeFormatter: DateTimeFormatter,
@@ -37,8 +37,6 @@ class NotificationsListAdapter(
   private val onEditNotificationScheduleClicked: (PinnitNotification) -> Unit,
   private val onRemoveNotificationScheduleClicked: (PinnitNotification) -> Unit
 ) : ListAdapter<PinnitNotification, RecyclerView.ViewHolder>(NotificationsDiffCallback) {
-
-  private val now = Instant.now(utcClock)
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
     val context = parent.context
@@ -59,6 +57,7 @@ class NotificationsListAdapter(
               val notification = currentList[adapterPosition]
               onEditNotificationScheduleClicked(notification)
             }
+
             R.id.removeSchedule -> {
               val notification = currentList[adapterPosition]
               onRemoveNotificationScheduleClicked(notification)
@@ -107,7 +106,7 @@ class NotificationsListAdapter(
 
       binding.timeStamp.text = DateUtils.getRelativeTimeSpanString(
         notification.updatedAt.toEpochMilli(),
-        now.toEpochMilli(),
+        Instant.now(utcClock).toEpochMilli(),
         SECOND_IN_MILLIS,
         FORMAT_ABBREV_RELATIVE
       )
@@ -169,18 +168,21 @@ class NotificationsListAdapter(
             scheduleTimeFormatter.format(scheduleDateTime.toLocalTime())
           )
         }
+
         scheduleDateTime.toLocalDate().isEqual(yesterday.toLocalDate()) -> {
           context.getString(
             R.string.notification_schedule_button_yesterday,
             scheduleTimeFormatter.format(scheduleDateTime.toLocalTime())
           )
         }
+
         scheduleDateTime.toLocalDate().isEqual(tomorrow.toLocalDate()) -> {
           context.getString(
             R.string.notification_schedule_button_tomorrow,
             scheduleTimeFormatter.format(scheduleDateTime.toLocalTime())
           )
         }
+
         else -> {
           context.getString(
             R.string.notification_schedule_button,
