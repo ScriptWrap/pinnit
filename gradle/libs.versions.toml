@@ -1,6 +1,6 @@
 [versions]
 sdk-compile = "34"
-sdk-min = "23"
+sdk-min = "26"
 sdk-target = "34"
 
 agp = "8.4.1"
