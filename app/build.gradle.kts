@@ -163,6 +163,8 @@ dependencies {
   implementation(libs.androidx.datastore)
   implementation(libs.javalite)
   implementation(libs.flowBinding)
+  implementation(libs.revenuecat)
+  implementation(libs.revenuecat.ui)
 
   val composeBOM = platform(libs.androidx.compose.bom)
   implementation(composeBOM)
