@@ -80,6 +80,20 @@ class NotificationsListAdapter(
     }
   }
 
+  override fun onViewAttachedToWindow(holder: RecyclerView.ViewHolder) {
+    super.onViewAttachedToWindow(holder)
+    if (holder is NotificationViewHolder) {
+      holder.addTimestampUpdateListener()
+    }
+  }
+
+  override fun onViewDetachedFromWindow(holder: RecyclerView.ViewHolder) {
+    super.onViewDetachedFromWindow(holder)
+    if (holder is NotificationViewHolder) {
+      holder.removeTimestampUpdateListener()
+    }
+  }
+
   override fun setHasStableIds(hasStableIds: Boolean) {
     super.setHasStableIds(true)
   }
@@ -93,6 +107,12 @@ class NotificationsListAdapter(
   ) : RecyclerView.ViewHolder(binding.root) {
 
     private val context = itemView.context
+    private val timestampRunnable = object : Runnable {
+      override fun run() {
+        setTimestamp()
+        binding.timeStamp.postDelayed(this, 1000)
+      }
+    }
 
     val notification: PinnitNotification?
       get() = itemView.tag as? PinnitNotification
@@ -103,13 +123,7 @@ class NotificationsListAdapter(
       binding.titleTextView.text = notification.title
       binding.contentTextView.text = notification.content
       binding.contentTextView.isVisible = notification.content.isNullOrBlank().not()
-
-      binding.timeStamp.text = DateUtils.getRelativeTimeSpanString(
-        notification.updatedAt.toEpochMilli(),
-        Instant.now(utcClock).toEpochMilli(),
-        SECOND_IN_MILLIS,
-        FORMAT_ABBREV_RELATIVE
-      )
+      setTimestamp()
 
       binding.togglePinIcon.isChecked = notification.isPinned
       binding.notificationRevealLayout.isVisible = notification.isPinned
@@ -123,6 +137,25 @@ class NotificationsListAdapter(
       renderScheduleButton(notification)
 
       itemView.transitionName = "notification_view_${notification.hashCode()}"
+    }
+
+    fun addTimestampUpdateListener() {
+      notification?.let {
+        binding.timeStamp.postDelayed(timestampRunnable, 1000)
+      }
+    }
+
+    fun removeTimestampUpdateListener() {
+      binding.timeStamp.removeCallbacks(timestampRunnable)
+    }
+
+    private fun setTimestamp() {
+      binding.timeStamp.text = DateUtils.getRelativeTimeSpanString(
+        notification!!.updatedAt.toEpochMilli(),
+        Instant.now(utcClock).toEpochMilli(),
+        SECOND_IN_MILLIS,
+        FORMAT_ABBREV_RELATIVE
+      )
     }
 
     private fun renderScheduleButton(notification: PinnitNotification) {
