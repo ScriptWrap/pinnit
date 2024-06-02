@@ -39,7 +39,7 @@ espresso = "3.5.1"
 desugarJDK = "2.0.4"
 compose = "2024.05.00"
 redacted = "1.9.0"
-revenuecat = "7.10.1"
+revenuecat = "7.11.0"
 
 [libraries]
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
